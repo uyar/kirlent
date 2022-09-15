@@ -1,0 +1,8 @@
+if [ -d .venv ] ; then
+    . .venv/bin/activate
+    eval "$(kirlent --print-completion-script=bash)"
+fi
+
+if [ -d node_modules ] ; then
+    PATH="$PWD/node_modules/.bin:$PATH"
+fi
