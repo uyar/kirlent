@@ -23,6 +23,8 @@ SLIDES_OPTIONS = [
 
 SLIDE_BUILDER = "kirlent2%(framework)s %(options)s %(in)s %(out)s"
 
+PDF_BUILDER = "decktape reveal --size %(size)s %(in)s %(out)s"
+
 
 def relative_path(path, wrt=None):
     start = wrt if wrt is not None else Path()
@@ -122,3 +124,22 @@ def slides(c, unit, lang="*", framework="slides", collect=False, bundle=False):
     if bundle:
         with c.cd(out_path.parent):
             c.run(BUNDLE % {"archive": slug.name, "src": slug.name})
+
+
+@task
+def pdf(c, unit, lang="*", framework="decktape"):
+    slides(c, unit=unit, lang=lang, framework="revealjs", collect=True)
+
+    unit_path = Path(unit)
+    slug = relative_path(unit_path, CONTENTS_DIR)
+    out_path = Path(OUTPUT_DIR, slug)
+
+    for src in out_path.glob(f"slides-revealjs-full.{lang}.html"):
+        artifact, language, _ = src.name.split(".")
+        src = Path(out_path, f"slides-revealjs-full.{lang}.html")
+        target = Path(out_path, f"slides.{language}.pdf")
+        c.run(PDF_BUILDER % {
+            "size": SLIDE_SIZE,
+            "in": relative_path(src),
+            "out": relative_path(target),
+        })
