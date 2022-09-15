@@ -1,0 +1,80 @@
+[project]
+name = "kirlent"
+version = "0.1.1"
+description = "Educational material builder."
+readme = "README.rst"
+
+authors = [{name = "H. Turgut Uyar", email = "uyar@tekir.org"}]
+license = {file = "LICENSE.txt"}
+
+keywords = []
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.7",
+    "Topic :: Text Processing :: Markup"
+]
+
+requires-python = "~=3.7"
+dependencies = [
+    "invoke",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "flake8",
+    "flake8-isort",
+    "tox",
+]
+
+[project.scripts]
+kirlent = "kirlent:program.run"
+
+[project.urls]
+"Homepage" = "https://tekir.org/kirlent/"
+"Repository" = "https://github.com/uyar/kirlent"
+
+[tool.isort]
+lines_after_imports = 2
+known_test = "pytest,unittest"
+sections = "TEST,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py{310,39,38,37}, style
+isolated_build = True
+
+[testenv]
+deps =
+    pytest
+commands =
+    pytest {posargs:tests}
+
+[testenv:coverage]
+deps =
+    {[testenv]deps}
+    pytest-cov
+commands =
+    pytest --cov={envsitepackagesdir}/kirlent --cov-report=term-missing tests
+
+[testenv:style]
+deps =
+    flake8
+    flake8-isort
+commands =
+    flake8 kirlent
+"""
+
+[build-system]
+requires = ["flit_core>=3.2"]
+build-backend = "flit_core.buildapi"
