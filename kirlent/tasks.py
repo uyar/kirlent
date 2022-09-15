@@ -15,13 +15,13 @@ BUNDLE = "zip -q -r %(archive)s.zip %(src)s"
 
 SLIDE_SIZE = "1125x795"  # A4
 SLIDES_OPTIONS = [
-    "--stylesheet-path=itucs.css,kirlent_impressjs.css",
+    "--stylesheet-path=itucs.css,kirlent_%(framework)s.css",
     "--link-stylesheet",
     "--lang=%(lang)s",
     "--slide-size=%(size)s",
 ]
 
-MKIMP = "kirlent2impressjs %(options)s %(in)s %(out)s"
+SLIDE_BUILDER = "kirlent2%(framework)s %(options)s %(in)s %(out)s"
 
 
 def relative_path(path, wrt=None):
@@ -92,23 +92,25 @@ def collect_files(c, doc):
 
 
 @task
-def impressjs(c, unit, lang="*", collect=False, bundle=False):
+def slides(c, unit, lang="*", framework="slides", collect=False, bundle=False):
     unit_path = Path(unit)
     slug = relative_path(unit_path, CONTENTS_DIR)
     out_path = Path(OUTPUT_DIR, slug)
 
     for src in unit_path.glob(f"slides.{lang}.rst"):
         artifact, language, _ = src.name.split(".")
-        target = Path(out_path, f"{artifact}-impressjs.{language}.html")
+        target = Path(out_path, f"{artifact}-{framework}.{language}.html")
         if not up_to_date(target, [src]):
             if not target.parent.exists():
                 c.run(MKDIR % {"dir": relative_path(target.parent)})
-            mkimp_options = " ".join(SLIDES_OPTIONS) % {
+            cli_options = " ".join(SLIDES_OPTIONS) % {
                 "lang": language,
                 "size": SLIDE_SIZE,
+                "framework": framework,
             }
-            c.run(MKIMP % {
-                "options": mkimp_options,
+            c.run(SLIDE_BUILDER % {
+                "framework": framework,
+                "options": cli_options,
                 "in": relative_path(src),
                 "out": relative_path(target),
             })
