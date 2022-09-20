@@ -15,7 +15,6 @@ BUNDLE = "zip -q -r %(archive)s.zip %(src)s"
 
 SLIDE_SIZE = "1125x795"  # A4
 SLIDES_OPTIONS = [
-    "--stylesheet-path=itucs.css,kirlent_%(framework)s.css",
     "--link-stylesheet",
     "--lang=%(lang)s",
     "--slide-size=%(size)s",
