@@ -11,7 +11,6 @@ OUTPUT_DIR = Path(PROJECT_DIR, "_build")
 
 MKDIR = "mkdir -p %(dir)s"
 COPY = "cp %(src)s %(dst)s"
-BUNDLE = "zip -q -r %(archive)s.zip %(src)s"
 
 SLIDE_SIZE = "1125x795"  # A4
 SLIDES_OPTIONS = [
@@ -102,7 +101,7 @@ def setup(c):
 
 
 @task
-def slides(c, unit, lang="*", framework="slides", collect=False, bundle=False):
+def slides(c, unit, lang="*", framework="slides", collect=False):
     unit_path = Path(unit)
     slug = relative_path(unit_path, CONTENTS_DIR)
     out_path = Path(OUTPUT_DIR, slug)
@@ -126,12 +125,8 @@ def slides(c, unit, lang="*", framework="slides", collect=False, bundle=False):
             })
             relativize_paths(target, src.parent)
 
-        if collect or bundle:
+        if collect:
             collect_files(c, target)
-
-    if bundle:
-        with c.cd(out_path.parent):
-            c.run(BUNDLE % {"archive": slug.name, "src": slug.name})
 
 
 @task
