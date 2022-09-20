@@ -1,5 +1,6 @@
 from itertools import dropwhile, zip_longest
 from pathlib import Path
+from urllib.parse import urlparse
 from xml.etree import ElementTree
 
 from invoke import task
@@ -24,6 +25,14 @@ SLIDE_BUILDER = "kirlent2%(framework)s %(options)s %(in)s %(out)s"
 PDF_BUILDER = "decktape reveal --size %(size)s %(in)s %(out)s"
 
 
+def newer(x, y):
+    return x.stat().st_mtime_ns > y.stat().st_mtime_ns
+
+
+def up_to_date(target, deps):
+    return target.exists() and all(newer(target, dep) for dep in deps)
+
+
 def relative_path(path, wrt=None):
     start = wrt if wrt is not None else Path()
     parts = zip_longest(start.resolve().parts, path.resolve().parts)
@@ -34,50 +43,38 @@ def relative_path(path, wrt=None):
     return Path(up_path, down_path)
 
 
-def _refs(content):
+def refs(content):
     content = content.replace('script defer', 'script')
     root = ElementTree.fromstring(content)
     return [
         ref.get(attr)
         for tag, attr in (("link", "href"), ("script", "src"), ("img", "src"))
-        for ref in root.findall(f".//{tag}")
+        for ref in root.findall(f".//{tag}[@{attr}]")
     ]
 
 
 def relativize_paths(doc, wrt):
     content = doc.read_text()
     content_ = content
-    for ref in _refs(content):
-        if (ref is None) or (ref.startswith(("http://", "https://"))):
+    for ref in refs(content):
+        parsed = urlparse(ref)
+        if parsed.scheme not in {"", "file"}:
             continue
-        ref_ = ref.split("file://")[-1]
-        asset = Path(wrt, ref_)
-        target = relative_path(asset, doc.parent)
-        content_ = content_.replace(ref, str(target))
+        asset = Path(wrt, parsed.path).resolve()
+        asset_relative = relative_path(asset, doc.parent)
+        content_ = content_.replace(ref, str(asset_relative))
     if content_ != content:
         doc.write_text(content_)
 
 
-def newer(x, y):
-    return x.stat().st_mtime_ns > y.stat().st_mtime_ns
-
-
-def up_to_date(target, deps):
-    return target.exists() and all(newer(target, dep) for dep in deps)
-
-
-def collect_files(c, doc):
-    doc = Path(doc)
-    suffixes = "".join(doc.suffixes)
-    artifact = doc.name[:doc.name.rindex(suffixes)]
-    target = Path(doc.parent, f"{artifact}-full{suffixes}")
-
+def collect_assets(c, doc, target):
     content = doc.read_text()
     content_ = content
-    for ref in _refs(content):
-        if (ref is None) or (ref.startswith(("http://", "https://"))):
+    for ref in refs(content):
+        parsed = urlparse(ref)
+        if parsed.scheme not in {"", "file"}:
             continue
-        asset_src = Path(doc.parent, ref).resolve()
+        asset_src = Path(doc.parent, parsed.path).resolve()
         asset_dst = Path(target.parent, asset_src.name)
         if not up_to_date(asset_dst, [asset_src]):
             c.run(COPY % {
@@ -88,6 +85,8 @@ def collect_files(c, doc):
         content_ = content_.replace(ref, ref[pos:])
 
     if not up_to_date(target, [doc]):
+        if not target.parent.exists():
+            c.run(MKDIR % {"dir": relative_path(target.parent)})
         target.write_text(content_)
 
 
@@ -101,48 +100,50 @@ def setup(c):
 
 
 @task
-def slides(c, unit, lang="*", framework="slides", collect=False):
+def slides(c, unit, lang="*", framework="slides"):
     unit_path = Path(unit)
     slug = relative_path(unit_path, CONTENTS_DIR)
-    out_path = Path(OUTPUT_DIR, slug)
+    output_path = Path(OUTPUT_DIR, slug)
 
     for src in unit_path.glob(f"slides.{lang}.rst"):
-        artifact, language, _ = src.name.split(".")
-        target = Path(out_path, f"{artifact}-{framework}.{language}.html")
-        if not up_to_date(target, [src]):
-            if not target.parent.exists():
-                c.run(MKDIR % {"dir": relative_path(target.parent)})
+        language = src.name.split(".")[1]
+        target_name = f"slides-{framework}.{language}.html"
+        target = Path(output_path, target_name)
+        raw_target = Path(output_path, f".{target_name}")
+        if not up_to_date(raw_target, [src]):
+            if not raw_target.parent.exists():
+                c.run(MKDIR % {"dir": relative_path(raw_target.parent)})
             cli_options = " ".join(SLIDES_OPTIONS) % {
                 "lang": language,
                 "size": SLIDE_SIZE,
-                "framework": framework,
             }
             c.run(SLIDE_BUILDER % {
                 "framework": framework,
                 "options": cli_options,
                 "in": relative_path(src),
-                "out": relative_path(target),
+                "out": relative_path(raw_target),
             })
-            relativize_paths(target, src.parent)
+            relativize_paths(raw_target, src.parent)
 
-        if collect:
-            collect_files(c, target)
+        collect_assets(c, raw_target, target)
 
 
 @task
 def pdf(c, unit, lang="*", framework="decktape"):
-    slides(c, unit=unit, lang=lang, framework="revealjs", collect=True)
+    slides(c, unit=unit, lang=lang, framework="revealjs")
 
     unit_path = Path(unit)
     slug = relative_path(unit_path, CONTENTS_DIR)
-    out_path = Path(OUTPUT_DIR, slug)
+    output_path = Path(OUTPUT_DIR, slug)
 
-    for src in out_path.glob(f"slides-revealjs-full.{lang}.html"):
-        artifact, language, _ = src.name.split(".")
-        src = Path(out_path, f"slides-revealjs-full.{lang}.html")
-        target = Path(out_path, f"slides.{language}.pdf")
-        c.run(PDF_BUILDER % {
-            "size": SLIDE_SIZE,
-            "in": relative_path(src),
-            "out": relative_path(target),
-        })
+    for src in output_path.glob(f"slides-revealjs.{lang}.html"):
+        language = src.name.split(".")[1]
+        target = Path(output_path, f"slides-decktape.{language}.pdf")
+        if not up_to_date(target, [src]):
+            if not target.parent.exists():
+                c.run(MKDIR % {"dir": relative_path(target.parent)})
+            c.run(PDF_BUILDER % {
+                "size": SLIDE_SIZE,
+                "in": relative_path(src),
+                "out": relative_path(target),
+            })

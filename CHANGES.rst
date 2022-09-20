@@ -1,6 +1,8 @@
 0.1.2 (unreleased)
 ------------------
 
+- Assets are now always collected.
+- Renamed slides and pdf output files.
 - Remove the bundling option.
 
 0.1.1 (2022-09-15)
