@@ -95,7 +95,7 @@ def collect_files(c, doc):
 
 @task
 def setup(c):
-    c.run("python -m pip --require-virtualenv install kirlent_docutils")
+    c.run("python -m pip --require-virtualenv install -U kirlent_docutils")
     c.run("npm install decktape")
 
     env = Path(__file__).parent / "env"
