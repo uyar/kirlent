@@ -18,11 +18,18 @@ MKDIR = "mkdir -p %(dir)s"
 COPY = "cp %(src)s %(dst)s"
 
 SLIDE_SIZE = "1125x795"  # A4
-SLIDES_OPTIONS = [
-    "--link-stylesheet",
-    "--lang=%(lang)s",
-    "--slide-size=%(size)s",
-]
+SLIDE_OPTIONS = {
+    "base": [
+        "--link-stylesheet",
+        "--lang=%(lang)s",
+    ],
+    "impressjs": [
+        "--slide-size=%(size)s",
+    ],
+    "revealjs": [
+        "--slide-size=%(size)s",
+    ],
+}
 
 SLIDE_BUILDER = "kirlent2%(framework)s %(options)s %(in)s %(out)s"
 
@@ -157,7 +164,8 @@ def slides(c, unit, lang="*", framework="slides"):
         if not up_to_date(raw_target, [src]):
             if not raw_target.parent.exists():
                 c.run(MKDIR % {"dir": relative_path(raw_target.parent)})
-            cli_options = " ".join(SLIDES_OPTIONS) % {
+            options = SLIDE_OPTIONS["base"] + SLIDE_OPTIONS.get(framework, [])
+            cli_options = " ".join(options) % {
                 "lang": language,
                 "size": SLIDE_SIZE,
             }
