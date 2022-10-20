@@ -31,6 +31,7 @@ dependencies = [
 dev = [
     "pytest",
     "pytest-cov",
+    "importlib-metadata; python_version < '3.8'",
     "flake8",
     "flake8-isort",
     "tox",
@@ -45,6 +46,7 @@ kirlent = "kirlent:program.run"
 
 [tool.isort]
 lines_after_imports = 2
+multi_line_output = 3
 known_test = "pytest,unittest"
 sections = "TEST,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
 
@@ -57,6 +59,7 @@ isolated_build = True
 [testenv]
 deps =
     pytest
+    py37: importlib-metadata
 commands =
     pytest {posargs:tests}
 
