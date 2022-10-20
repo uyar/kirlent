@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Kırlent.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "0.1.2"
+__version__ = "0.2"
 
 from invoke import Collection, Program
 

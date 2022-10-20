@@ -1,4 +1,4 @@
-0.2 (unreleased)
+0.2 (2022-10-20)
 ----------------
 
 - Convert framework parameters into subtasks.
