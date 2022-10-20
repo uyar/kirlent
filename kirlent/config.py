@@ -15,18 +15,10 @@
 
 from pathlib import Path
 
-from invoke import Collection, task
 
-from . import pdf, slides
+PROJECT_DIR = Path()
+CONTENTS_DIR = PROJECT_DIR / "contents"
+OUTPUT_DIR = PROJECT_DIR / "_build"
 
-
-@task
-def setup(c):
-    c.run("python -m pip --require-virtualenv install -U kirlent_docutils")
-    c.run("npm install decktape")
-
-    env = Path(__file__).parent / "env"
-    c.run(f"cp {env} .env")
-
-
-namespace = Collection(setup, slides, pdf)
+MKDIR = "mkdir -p %(dir)s"
+COPY = "cp %(src)s %(dst)s"
