@@ -23,11 +23,11 @@ from invoke import Collection, Program
 from . import tasks
 
 
-config = Path("kirlent.json")
+config: Path = Path("kirlent.json")
 if not config.exists():
     config = Path(__file__).parent / "kirlent.json"
 
-namespace = Collection.from_module(tasks)
+namespace: Collection = Collection.from_module(tasks)
 namespace.configure(json.loads(config.read_text()))
 
-program = Program(namespace=namespace, version=__version__)
+program: Program = Program(namespace=namespace, version=__version__)

@@ -15,7 +15,7 @@
 
 from pathlib import Path
 
-from invoke import task
+from invoke import Context, task
 
 from .utils import (
     MKDIR,
@@ -26,10 +26,10 @@ from .utils import (
 )
 
 
-BUILD_SLIDES = "%(builder)s %(options)s %(in)s %(out)s"
+BUILD_SLIDES: str = "%(builder)s %(options)s %(in)s %(out)s"
 
 
-def slides(c, unit, *, framework, lang="*"):
+def slides(c: Context, unit: str, *, framework: str, lang: str = "*") -> None:
     unit_path = Path(unit)
     slug = relative_path(unit_path, Path(c.contents))
     output_path = Path(c.output, slug)
@@ -42,7 +42,7 @@ def slides(c, unit, *, framework, lang="*"):
         if not up_to_date(raw_target, [src]):
             if not raw_target.parent.exists():
                 c.run(MKDIR % {"dir": relative_path(raw_target.parent)})
-            options = c.slides.options.base + c.slides.options.get(framework, [])
+            options = c.slides.options.base + c.slides.options.get(framework, [])  # noqa: E501
             cli_options = " ".join(options) % {
                 "lang": language,
                 "size": c.slides.size,

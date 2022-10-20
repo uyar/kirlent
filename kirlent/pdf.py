@@ -21,7 +21,7 @@ from . import slides
 from .utils import MKDIR, relative_path, up_to_date
 
 
-BUILD_PDF = "decktape reveal --size %(size)s %(in)s %(out)s"
+BUILD_PDF: str = "decktape reveal --size %(size)s %(in)s %(out)s"
 
 
 @task

@@ -32,6 +32,7 @@ dev = [
     "pytest",
     "pytest-cov",
     "importlib-metadata; python_version < '3.8'",
+    "mypy",
     "flake8",
     "flake8-isort",
     "tox",
@@ -43,6 +44,9 @@ kirlent = "kirlent:program.run"
 [project.urls]
 "Homepage" = "https://tekir.org/kirlent/"
 "Repository" = "https://github.com/uyar/kirlent"
+
+[tool.mypy]
+ignore_missing_imports = true
 
 [tool.isort]
 lines_after_imports = 2
@@ -69,6 +73,12 @@ deps =
     pytest-cov
 commands =
     pytest --cov={envsitepackagesdir}/kirlent --cov-report=term-missing tests
+
+[testenv:mypy]
+deps =
+    mypy
+commands =
+    mypy kirlent
 
 [testenv:style]
 deps =

@@ -37,4 +37,4 @@ def setup(c):
     })
 
 
-namespace = Collection(setup, slides, pdf)
+namespace: Collection = Collection(setup, slides, pdf)

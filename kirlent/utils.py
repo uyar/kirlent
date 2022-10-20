@@ -19,23 +19,26 @@ from html.parser import HTMLParser
 from io import StringIO
 from itertools import dropwhile, zip_longest
 from pathlib import Path
+from typing import List, Sequence, Union
 from urllib.parse import urlparse
 from xml.etree import ElementTree
 
-
-MKDIR = "mkdir -p %(dir)s"
-COPY = "cp %(src)s %(dst)s"
+from invoke import Context
 
 
-def newer(x, y):
+MKDIR: str = "mkdir -p %(dir)s"
+COPY: str = "cp %(src)s %(dst)s"
+
+
+def newer(x: Path, y: Path) -> bool:
     return x.stat().st_mtime_ns > y.stat().st_mtime_ns
 
 
-def up_to_date(target, deps):
+def up_to_date(target: Path, deps: Sequence[Path]) -> bool:
     return target.exists() and all(newer(target, dep) for dep in deps)
 
 
-def relative_path(path, wrt=None):
+def relative_path(path: Path, wrt: Union[Path, None] = None) -> Path:
     start = wrt if wrt is not None else Path()
     parts = zip_longest(start.resolve().parts, path.resolve().parts)
     path_diff = dropwhile(lambda ps: ps[0] == ps[1], parts)
@@ -78,7 +81,7 @@ class HTMLNormalizer(HTMLParser):
         """Ignore errors."""
 
 
-def html_to_xhtml(document):
+def html_to_xhtml(document: str) -> str:
     out = StringIO()
     normalizer = HTMLNormalizer()
     with redirect_stdout(out):
@@ -86,16 +89,16 @@ def html_to_xhtml(document):
     return out.getvalue()
 
 
-def refs(content):
+def refs(content: str) -> List[str]:
     root = ElementTree.fromstring(html_to_xhtml(content))
     return [
-        ref.get(attr)
+        ref.get(attr, "")
         for tag, attr in (("link", "href"), ("script", "src"), ("img", "src"))
         for ref in root.findall(f".//{tag}[@{attr}]")
     ]
 
 
-def relativize_paths(doc, wrt):
+def relativize_paths(doc: Path, wrt: Path) -> None:
     content = doc.read_text()
     content_ = content
     for ref in refs(content):
@@ -109,7 +112,7 @@ def relativize_paths(doc, wrt):
         doc.write_text(content_)
 
 
-def collect_assets(c, doc, target):
+def collect_assets(c: Context, doc: Path, target: Path) -> None:
     content = doc.read_text()
     content_ = content
     for ref in refs(content):
