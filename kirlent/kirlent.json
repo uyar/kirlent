@@ -1,0 +1,19 @@
+{
+    "contents": "contents",
+    "output": "_build",
+    "slides": {
+        "size": "1125x795",
+        "options": {
+            "base": [
+                "--link-stylesheet",
+                "--lang=%(lang)s"
+            ],
+            "impressjs": [
+                "--slide-size=%(size)s"
+            ],
+            "revealjs": [
+                "--slide-size=%(size)s"
+            ]
+        }
+    }
+}

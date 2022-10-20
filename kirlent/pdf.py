@@ -18,11 +18,10 @@ from pathlib import Path
 from invoke import task
 
 from . import slides
-from .config import CONTENTS_DIR, MKDIR, OUTPUT_DIR
-from .utils import relative_path, up_to_date
+from .utils import MKDIR, relative_path, up_to_date
 
 
-PDF_BUILDER = "decktape reveal --size %(size)s %(in)s %(out)s"
+BUILD_PDF = "decktape reveal --size %(size)s %(in)s %(out)s"
 
 
 @task
@@ -30,17 +29,17 @@ def decktape(c, unit, lang="*"):
     slides.slides(c, unit=unit, lang=lang, framework="revealjs")
 
     unit_path = Path(unit)
-    slug = relative_path(unit_path, CONTENTS_DIR)
-    output_path = Path(OUTPUT_DIR, slug)
+    slug = relative_path(unit_path, Path(c.contents))
+    output_path = Path(c.output, slug)
 
     for src in output_path.glob(f"slides-revealjs.{lang}.html"):
         language = src.name.split(".")[1]
-        target = Path(output_path, f"slides-decktape.{language}.pdf")
+        target = output_path / f"slides-decktape.{language}.pdf"
         if not up_to_date(target, [src]):
             if not target.parent.exists():
                 c.run(MKDIR % {"dir": relative_path(target.parent)})
-            c.run(PDF_BUILDER % {
-                "size": slides.SLIDE_SIZE,
+            c.run(BUILD_PDF % {
+                "size": c.slides.size,
                 "in": relative_path(src),
                 "out": relative_path(target),
             })

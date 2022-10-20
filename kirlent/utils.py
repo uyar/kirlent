@@ -22,7 +22,9 @@ from pathlib import Path
 from urllib.parse import urlparse
 from xml.etree import ElementTree
 
-from .config import COPY, MKDIR
+
+MKDIR = "mkdir -p %(dir)s"
+COPY = "cp %(src)s %(dst)s"
 
 
 def newer(x, y):

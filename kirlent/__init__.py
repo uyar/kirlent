@@ -15,9 +15,19 @@
 
 __version__ = "0.2"
 
+import json
+from pathlib import Path
+
 from invoke import Collection, Program
 
 from . import tasks
 
 
-program = Program(namespace=Collection.from_module(tasks), version=__version__)
+config = Path("kirlent.json")
+if not config.exists():
+    config = Path(__file__).parent / "kirlent.json"
+
+namespace = Collection.from_module(tasks)
+namespace.configure(json.loads(config.read_text()))
+
+program = Program(namespace=namespace, version=__version__)

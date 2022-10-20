@@ -18,6 +18,7 @@ from pathlib import Path
 from invoke import Collection, task
 
 from . import pdf, slides
+from .utils import COPY
 
 
 @task
@@ -25,8 +26,15 @@ def setup(c):
     c.run("python -m pip --require-virtualenv install -U kirlent_docutils")
     c.run("npm install decktape")
 
-    env = Path(__file__).parent / "env"
-    c.run(f"cp {env} .env")
+    c.run(COPY % {
+        "src": Path(__file__).parent / "env",
+        "dst": Path(".env"),
+    })
+
+    c.run(COPY % {
+        "src": Path(__file__).parent / "kirlent.json",
+        "dst": Path("kirlent.json"),
+    })
 
 
 namespace = Collection(setup, slides, pdf)

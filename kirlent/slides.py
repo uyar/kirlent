@@ -17,47 +17,38 @@ from pathlib import Path
 
 from invoke import task
 
-from .config import CONTENTS_DIR, MKDIR, OUTPUT_DIR
-from .utils import collect_assets, relative_path, relativize_paths, up_to_date
+from .utils import (
+    MKDIR,
+    collect_assets,
+    relative_path,
+    relativize_paths,
+    up_to_date
+)
 
 
-SLIDE_SIZE = "1125x795"  # A4
-SLIDE_OPTIONS = {
-    "base": [
-        "--link-stylesheet",
-        "--lang=%(lang)s",
-    ],
-    "impressjs": [
-        "--slide-size=%(size)s",
-    ],
-    "revealjs": [
-        "--slide-size=%(size)s",
-    ],
-}
-
-SLIDE_BUILDER = "%(builder)s %(options)s %(in)s %(out)s"
+BUILD_SLIDES = "%(builder)s %(options)s %(in)s %(out)s"
 
 
 def slides(c, unit, *, framework, lang="*"):
     unit_path = Path(unit)
-    slug = relative_path(unit_path, CONTENTS_DIR)
-    output_path = Path(OUTPUT_DIR, slug)
+    slug = relative_path(unit_path, Path(c.contents))
+    output_path = Path(c.output, slug)
 
     for src in unit_path.glob(f"slides.{lang}.rst"):
         language = src.name.split(".")[1]
         target_name = f"slides-{framework}.{language}.html"
-        target = Path(output_path, target_name)
-        raw_target = Path(output_path, f".{target_name}")
+        target = output_path / target_name
+        raw_target = output_path / f".{target_name}"
         if not up_to_date(raw_target, [src]):
             if not raw_target.parent.exists():
                 c.run(MKDIR % {"dir": relative_path(raw_target.parent)})
-            options = SLIDE_OPTIONS["base"] + SLIDE_OPTIONS.get(framework, [])
+            options = c.slides.options.base + c.slides.options.get(framework, [])
             cli_options = " ".join(options) % {
                 "lang": language,
-                "size": SLIDE_SIZE,
+                "size": c.slides.size,
             }
             format = "slides" if framework == "simple" else framework
-            c.run(SLIDE_BUILDER % {
+            c.run(BUILD_SLIDES % {
                 "builder": f"kirlent2{format}",
                 "options": cli_options,
                 "in": relative_path(src),

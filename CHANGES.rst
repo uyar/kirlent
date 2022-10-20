@@ -1,3 +1,8 @@
+0.3 (unreleased)
+----------------
+
+- Read configuration from file.
+
 0.2 (2022-10-20)
 ----------------
 
@@ -7,7 +12,7 @@
 ------------------
 
 - Assets are now always collected.
-- Renamed slides and pdf output files.
+- Rename slides and pdf output files.
 - Remove the bundling option.
 
 0.1.1 (2022-09-15)
