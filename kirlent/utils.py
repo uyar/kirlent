@@ -19,7 +19,7 @@ from html.parser import HTMLParser
 from io import StringIO
 from itertools import dropwhile, zip_longest
 from pathlib import Path
-from typing import List, Sequence, Union
+from typing import List, Sequence, Tuple, Union
 from urllib.parse import urlparse
 from xml.etree import ElementTree
 
@@ -89,38 +89,24 @@ def html_to_xhtml(document: str) -> str:
     return out.getvalue()
 
 
-def refs(content: str) -> List[str]:
+def refs(content: str) -> List[Tuple[str, str]]:
     root = ElementTree.fromstring(html_to_xhtml(content))
     return [
-        ref.get(attr, "")
+        (ref.tag, ref.get(attr, ""))
         for tag, attr in (("link", "href"), ("script", "src"), ("img", "src"))
         for ref in root.findall(f".//{tag}[@{attr}]")
     ]
 
 
-def relativize_paths(doc: Path, wrt: Path) -> None:
-    content = doc.read_text()
+def collect_assets(c: Context, content: str, base: Path, wrt: Path) -> str:
     content_ = content
-    for ref in refs(content):
-        parsed = urlparse(ref)
-        if parsed.scheme not in {"", "file"}:
+    for tag, ref in refs(content):
+        url = urlparse(ref)
+        if url.scheme not in {"", "file"}:
             continue
-        asset = Path(wrt, parsed.path).resolve()
-        asset_relative = relative_path(asset, doc.parent)
-        content_ = content_.replace(ref, str(asset_relative))
-    if content_ != content:
-        doc.write_text(content_)
 
-
-def collect_assets(c: Context, doc: Path, target: Path) -> None:
-    content = doc.read_text()
-    content_ = content
-    for ref in refs(content):
-        parsed = urlparse(ref)
-        if parsed.scheme not in {"", "file"}:
-            continue
-        asset_src = Path(doc.parent, parsed.path).resolve()
-        asset_dst = Path(target.parent, asset_src.name)
+        asset_src = Path(url.path) if tag == "link" else Path(wrt, url.path)
+        asset_dst = Path(base, asset_src.name)
         if not up_to_date(asset_dst, [asset_src]):
             c.run(COPY % {
                 "src": relative_path(asset_src),
@@ -128,8 +114,4 @@ def collect_assets(c: Context, doc: Path, target: Path) -> None:
             })
         pos = ref.rfind(asset_dst.name)
         content_ = content_.replace(ref, ref[pos:])
-
-    if not up_to_date(target, [doc]):
-        if not target.parent.exists():
-            c.run(MKDIR % {"dir": relative_path(target.parent)})
-        target.write_text(content_)
+    return content_

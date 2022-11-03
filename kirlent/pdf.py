@@ -25,21 +25,17 @@ BUILD_PDF: str = "decktape reveal --size %(size)s %(in)s %(out)s"
 
 
 @task
-def decktape(c, unit, lang="*"):
-    slides.slides(c, unit=unit, lang=lang, framework="revealjs")
-
-    unit_path = Path(unit)
-    slug = relative_path(unit_path, Path(c.contents))
-    output_path = Path(c.output, slug)
-
-    for src in output_path.glob(f"slides-revealjs.{lang}.html"):
-        language = src.name.split(".")[1]
-        target = output_path / f"slides-decktape.{language}.pdf"
-        if not up_to_date(target, [src]):
-            if not target.parent.exists():
-                c.run(MKDIR % {"dir": relative_path(target.parent)})
-            c.run(BUILD_PDF % {
-                "size": c.slides.size,
-                "in": relative_path(src),
-                "out": relative_path(target),
-            })
+def decktape(c, src, output):
+    src_path, output_path = Path(src), Path(output)
+    slides.slides(c, src=src_path, output=output_path, framework="revealjs")
+    slides_path = Path(c.config["revealjs:output"])
+    dst_name = slides_path.name.replace("revealjs", "decktape")
+    dst_path = Path(output, dst_name).with_suffix(".pdf")
+    if not up_to_date(dst_path, [slides_path]):
+        if not dst_path.parent.exists():
+            c.run(MKDIR % {"dir": relative_path(dst_path.parent)})
+        c.run(BUILD_PDF % {
+            "size": c.slides.size,
+            "in": relative_path(slides_path),
+            "out": relative_path(dst_path),
+        })

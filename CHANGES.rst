@@ -2,6 +2,7 @@
 ----------------
 
 - Read configuration from file.
+- Take input document and output directory as parameters.
 
 0.2 (2022-10-20)
 ----------------
