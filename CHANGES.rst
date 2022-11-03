@@ -1,4 +1,4 @@
-0.3 (unreleased)
+0.3 (2022-11-03)
 ----------------
 
 - Read configuration from file.
