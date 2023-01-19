@@ -1,3 +1,9 @@
+0.4 (unreleased)
+----------------
+
+- Update invoke to support Python 3.12.
+- Drop support for Python 3.7.
+
 0.3 (2022-11-03)
 ----------------
 
