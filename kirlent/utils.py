@@ -1,4 +1,4 @@
-# Copyright (C) 2022 H. Turgut Uyar <uyar@tekir.org>
+# Copyright (C) 2022-2023 H. Turgut Uyar <uyar@tekir.org>
 #
 # Kırlent is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@ from xml.etree import ElementTree
 from invoke import Context
 
 
-MKDIR: str = "mkdir -p %(dir)s"
-COPY: str = "cp %(src)s %(dst)s"
+MKDIR = "mkdir -p %(dir)s"
+COPY = "cp %(src)s %(dst)s"
 
 
 def newer(x: Path, y: Path) -> bool:

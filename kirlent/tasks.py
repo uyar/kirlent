@@ -1,4 +1,4 @@
-# Copyright (C) 2022 H. Turgut Uyar <uyar@tekir.org>
+# Copyright (C) 2022-2023 H. Turgut Uyar <uyar@tekir.org>
 #
 # Kırlent is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,14 +15,14 @@
 
 from pathlib import Path
 
-from invoke import Collection, task
+from invoke import Collection, Context, task
 
 from . import pdf, slides
 from .utils import COPY
 
 
 @task
-def setup(c):
+def setup(c: Context) -> None:
     c.run("python -m pip --require-virtualenv install -U kirlent_docutils")
     c.run("npm install decktape")
 
@@ -37,4 +37,4 @@ def setup(c):
     })
 
 
-namespace: Collection = Collection(setup, slides, pdf)
+namespace = Collection(setup, slides, pdf)
