@@ -1,4 +1,4 @@
-# Copyright (C) 2022 H. Turgut Uyar <uyar@tekir.org>
+# Copyright (C) 2022-2023 H. Turgut Uyar <uyar@tekir.org>
 #
 # Kırlent is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,20 +15,20 @@
 
 from io import StringIO
 from pathlib import Path
-from typing import Dict
+from typing import Mapping
 
 from invoke import Context, task
 
 from .utils import MKDIR, collect_assets, relative_path, up_to_date
 
 
-BUILDERS: Dict[str, str] = {
+BUILDERS: Mapping[str, str] = {
     "simple": "kirlent2slides",
     "impressjs": "kirlent2impressjs",
     "revealjs": "kirlent2revealjs",
 }
 
-BUILD_SLIDES: str = "%(builder)s %(options)s %(in)s"
+BUILD_SLIDES = "%(builder)s %(options)s %(in)s"
 
 
 def slides(c: Context, src: Path, output: Path, *, framework: str) -> None:
@@ -59,15 +59,15 @@ def slides(c: Context, src: Path, output: Path, *, framework: str) -> None:
 
 
 @task
-def simple(c, src, output):
+def simple(c: Context, src: str, output: str) -> None:
     slides(c, Path(src), Path(output), framework="simple")
 
 
 @task
-def impressjs(c, src, output):
+def impressjs(c: Context, src: str, output: str) -> None:
     slides(c, Path(src), Path(output), framework="impressjs")
 
 
 @task
-def revealjs(c, src, output):
+def revealjs(c: Context, src: str, output: str) -> None:
     slides(c, Path(src), Path(output), framework="revealjs")

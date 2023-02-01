@@ -1,4 +1,4 @@
-# Copyright (C) 2022 H. Turgut Uyar <uyar@tekir.org>
+# Copyright (C) 2022-2023 H. Turgut Uyar <uyar@tekir.org>
 #
 # Kırlent is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,17 +15,17 @@
 
 from pathlib import Path
 
-from invoke import task
+from invoke import Context, task
 
 from . import slides
 from .utils import MKDIR, relative_path, up_to_date
 
 
-BUILD_PDF: str = "decktape reveal --size %(size)s %(in)s %(out)s"
+BUILD_PDF = "decktape reveal --size %(size)s %(in)s %(out)s"
 
 
 @task
-def decktape(c, src, output):
+def decktape(c: Context, src: str, output: str) -> None:
     src_path, output_path = Path(src), Path(output)
     slides.slides(c, src=src_path, output=output_path, framework="revealjs")
     slides_path = Path(c.config["revealjs:output"])

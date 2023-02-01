@@ -13,8 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Kırlent.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = "0.3"
-
 import json
 from pathlib import Path
 
@@ -23,11 +21,13 @@ from invoke import Collection, Program
 from . import tasks
 
 
-config: Path = Path("kirlent.json")
+__version__ = "0.3"
+
+config = Path("kirlent.json")
 if not config.exists():
     config = Path(__file__).parent / "kirlent.json"
 
 namespace: Collection = Collection.from_module(tasks)
 namespace.configure(json.loads(config.read_text()))
 
-program: Program = Program(namespace=namespace, version=__version__)
+program = Program(namespace=namespace, version=__version__)
