@@ -14,10 +14,10 @@ classifiers = [
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Topic :: Text Processing :: Markup"
 ]
 
@@ -27,21 +27,27 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
+tests = [
     "pytest",
     "pytest-cov",
-    "mypy",
+]
+lint = [
     "flake8",
     "flake8-isort",
+    "mypy",
+]
+dev = [
+    "kirlent[tests,lint]",
     "tox",
+    "build",
 ]
 
 [project.scripts]
 kirlent = "kirlent:program.run"
 
 [project.urls]
-"Homepage" = "https://tekir.org/kirlent/"
-"Repository" = "https://github.com/uyar/kirlent"
+homepage = "https://tekir.org/kirlent/"
+repository = "https://github.com/uyar/kirlent"
 
 [tool.mypy]
 ignore_missing_imports = true
@@ -55,32 +61,25 @@ sections = "TEST,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py{311,310,39,38}, mypy, style
+envlist = py{38,39,310,311}, types, style
 isolated_build = True
 
 [testenv]
-deps =
-    pytest
+extras = tests
 commands =
     pytest {posargs:tests}
 
 [testenv:coverage]
-deps =
-    {[testenv]deps}
-    pytest-cov
 commands =
     pytest --cov={envsitepackagesdir}/kirlent --cov-report=term-missing tests
 
-[testenv:mypy]
-deps =
-    mypy
+[testenv:types]
+extras = lint
 commands =
     mypy kirlent
 
 [testenv:style]
-deps =
-    flake8
-    flake8-isort
+extras = lint
 commands =
     flake8 kirlent
 """
