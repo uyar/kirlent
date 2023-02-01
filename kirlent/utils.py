@@ -26,8 +26,8 @@ from xml.etree import ElementTree
 from invoke import Context
 
 
-MKDIR = "mkdir -p %(dir)s"
-COPY = "cp %(src)s %(dst)s"
+MKDIR = 'mkdir -p "%(dir)s"'
+COPY = 'cp "%(src)s" "%(dst)s"'
 
 
 def newer(x: Path, y: Path) -> bool:

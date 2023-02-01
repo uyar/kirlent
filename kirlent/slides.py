@@ -28,7 +28,7 @@ BUILDERS: Mapping[str, str] = {
     "revealjs": "kirlent2revealjs",
 }
 
-BUILD_SLIDES = "%(builder)s %(options)s %(in)s"
+BUILD_SLIDES = '%(builder)s %(options)s "%(in)s"'
 
 
 def slides(c: Context, src: Path, output: Path, *, framework: str) -> None:
