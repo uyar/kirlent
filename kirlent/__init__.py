@@ -21,7 +21,7 @@ from invoke import Collection, Program
 from . import tasks
 
 
-__version__ = "0.3"
+__version__ = "0.4"
 
 config = Path("kirlent.json")
 if not config.exists():

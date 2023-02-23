@@ -15,7 +15,7 @@
 
 from io import StringIO
 from pathlib import Path
-from typing import Mapping
+from typing import Mapping, Union
 
 from invoke import Context, task
 
@@ -76,7 +76,8 @@ def revealjs(c: Context, src: str, output: str) -> None:
 
 
 @task
-def decktape(c: Context, src: str, output: str, nup: str = None) -> None:
+def decktape(c: Context, src: str, output: str,
+             nup: Union[str, None] = None) -> None:
     src_path, output_path = Path(src), Path(output)
     slides(c, src=src_path, output=output_path, framework="revealjs")
     slides_path = Path(c.config["revealjs:output"])

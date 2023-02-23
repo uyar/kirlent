@@ -1,6 +1,6 @@
 [project]
 name = "kirlent"
-version = "0.3"
+version = "0.4"
 description = "Educational material builder."
 readme = "README.rst"
 
@@ -14,11 +14,12 @@ classifiers = [
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Topic :: Text Processing :: Markup"
+    "Topic :: Text Processing :: Markup",
 ]
 
 requires-python = "~=3.8"

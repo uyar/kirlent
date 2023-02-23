@@ -1,10 +1,10 @@
-0.4 (unreleased)
+0.4 (2023-02-23)
 ----------------
 
 - Move decktape task under slides.
 - Add n-up option for decktape PDF output.
 - Fix processing of files with special characters in the name.
-- Update invoke to support Python 3.12.
+- Update invoke to support Python 3.11.
 - Drop support for Python 3.7.
 
 0.3 (2022-11-03)
