@@ -28,8 +28,9 @@ BUILDERS: Mapping[str, str] = {
     "revealjs": "kirlent2revealjs",
 }
 
-BUILD_DOCUTILS = '%(builder)s %(options)s "%(in)s"'
-BUILD_DECKTAPE = 'decktape reveal --size %(size)s "%(in)s" "%(out)s"'
+DOCUTILS = '%(builder)s %(options)s "%(in)s"'
+DECKTAPE = 'decktape reveal --size %(size)s "%(in)s" "%(out)s"'
+PDFNUP = 'pdfjam --quiet --nup %(nup)s %(extras)s -o "%(out)s" "%(in)s"'
 
 
 def slides(c: Context, src: Path, output: Path, *, framework: str) -> None:
@@ -47,7 +48,7 @@ def slides(c: Context, src: Path, output: Path, *, framework: str) -> None:
         }
         out = StringIO()
         c.run(
-            BUILD_DOCUTILS % {
+            DOCUTILS % {
                 "builder": BUILDERS[framework],
                 "options": cli_options,
                 "in": relative_path(src),
@@ -75,7 +76,7 @@ def revealjs(c: Context, src: str, output: str) -> None:
 
 
 @task
-def decktape(c: Context, src: str, output: str) -> None:
+def decktape(c: Context, src: str, output: str, nup: str = None) -> None:
     src_path, output_path = Path(src), Path(output)
     slides(c, src=src_path, output=output_path, framework="revealjs")
     slides_path = Path(c.config["revealjs:output"])
@@ -84,8 +85,22 @@ def decktape(c: Context, src: str, output: str) -> None:
     if not up_to_date(dst_path, [slides_path]):
         if not dst_path.parent.exists():
             c.run(MKDIR % {"dir": relative_path(dst_path.parent)})
-        c.run(BUILD_DECKTAPE % {
+        c.run(DECKTAPE % {
             "size": c.slides.size,
             "in": relative_path(slides_path),
             "out": relative_path(dst_path),
         })
+
+    if nup is not None:
+        nup_path = dst_path.with_suffix(f".{nup}.pdf")
+        if not up_to_date(nup_path, [dst_path]):
+            extras = []
+            cols, rows = nup.split("x")
+            if cols >= rows:
+                extras.append("--landscape")
+            c.run(PDFNUP % {
+                "nup": nup,
+                "extras": " ".join(extras),
+                "out": nup_path,
+                "in": dst_path,
+            })
