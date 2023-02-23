@@ -28,7 +28,8 @@ BUILDERS: Mapping[str, str] = {
     "revealjs": "kirlent2revealjs",
 }
 
-BUILD_SLIDES = '%(builder)s %(options)s "%(in)s"'
+BUILD_DOCUTILS = '%(builder)s %(options)s "%(in)s"'
+BUILD_DECKTAPE = 'decktape reveal --size %(size)s "%(in)s" "%(out)s"'
 
 
 def slides(c: Context, src: Path, output: Path, *, framework: str) -> None:
@@ -46,7 +47,7 @@ def slides(c: Context, src: Path, output: Path, *, framework: str) -> None:
         }
         out = StringIO()
         c.run(
-            BUILD_SLIDES % {
+            BUILD_DOCUTILS % {
                 "builder": BUILDERS[framework],
                 "options": cli_options,
                 "in": relative_path(src),
@@ -71,3 +72,20 @@ def impressjs(c: Context, src: str, output: str) -> None:
 @task
 def revealjs(c: Context, src: str, output: str) -> None:
     slides(c, Path(src), Path(output), framework="revealjs")
+
+
+@task
+def decktape(c: Context, src: str, output: str) -> None:
+    src_path, output_path = Path(src), Path(output)
+    slides(c, src=src_path, output=output_path, framework="revealjs")
+    slides_path = Path(c.config["revealjs:output"])
+    dst_name = slides_path.name.replace("revealjs", "decktape")
+    dst_path = Path(output, dst_name).with_suffix(".pdf")
+    if not up_to_date(dst_path, [slides_path]):
+        if not dst_path.parent.exists():
+            c.run(MKDIR % {"dir": relative_path(dst_path.parent)})
+        c.run(BUILD_DECKTAPE % {
+            "size": c.slides.size,
+            "in": relative_path(slides_path),
+            "out": relative_path(dst_path),
+        })

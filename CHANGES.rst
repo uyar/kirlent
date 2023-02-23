@@ -1,6 +1,7 @@
 0.4 (unreleased)
 ----------------
 
+- Move decktape task under slides.
 - Fix processing of files with special characters in the name.
 - Update invoke to support Python 3.12.
 - Drop support for Python 3.7.

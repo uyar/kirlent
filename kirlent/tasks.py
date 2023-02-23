@@ -17,7 +17,7 @@ from pathlib import Path
 
 from invoke import Collection, Context, task
 
-from . import pdf, slides
+from . import slides
 from .utils import COPY
 
 
@@ -37,4 +37,4 @@ def setup(c: Context) -> None:
     })
 
 
-namespace = Collection(setup, slides, pdf)
+namespace = Collection(setup, slides)
