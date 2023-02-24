@@ -23,15 +23,19 @@ from .utils import COPY
 
 @task
 def setup(c: Context) -> None:
-    c.run(COPY % {
-        "src": Path(__file__).parent / "env",
-        "dst": Path(".env"),
-    })
+    env_path = Path(".env")
+    if not env_path.exists():
+        c.run(COPY % {
+            "src": Path(__file__).parent / "env",
+            "dst": env_path,
+        })
 
-    c.run(COPY % {
-        "src": Path(__file__).parent / "kirlent.json",
-        "dst": Path("kirlent.json"),
-    })
+    config_path = Path("kirlent.json")
+    if not config_path.exists():
+        c.run(COPY % {
+            "src": Path(__file__).parent / "kirlent.json",
+            "dst": config_path,
+        })
 
 
 namespace = Collection(setup, slides)

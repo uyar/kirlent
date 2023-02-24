@@ -3,6 +3,7 @@
 
 - Add recreate option for bypassing up-to-date checks.
 - Don't install dependencies on project setup.
+- Don't overwrite existing config files on project setup.
 
 0.4 (2023-02-23)
 ----------------
