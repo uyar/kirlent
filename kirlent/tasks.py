@@ -23,9 +23,6 @@ from .utils import COPY
 
 @task
 def setup(c: Context) -> None:
-    c.run("python -m pip --require-virtualenv install -U kirlent_docutils")
-    c.run("npm install decktape")
-
     c.run(COPY % {
         "src": Path(__file__).parent / "env",
         "dst": Path(".env"),
