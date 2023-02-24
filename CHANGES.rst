@@ -1,6 +1,7 @@
 0.5 (unreleased)
 ----------------
 
+- Generate and update an index page for outputs.
 - Add recreate option for bypassing up-to-date checks.
 - Don't install dependencies on project setup.
 - Don't overwrite existing config files on project setup.

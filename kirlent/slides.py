@@ -19,6 +19,7 @@ from typing import Mapping, Union
 
 from invoke import Context, task
 
+from .templates import INDEX_TEMPLATE, ITEM_TEMPLATE
 from .utils import MKDIR, collect_assets, relative_path, up_to_date
 
 
@@ -33,11 +34,37 @@ DECKTAPE = 'decktape reveal --size %(size)s "%(in)s" "%(out)s"'
 PDFNUP = 'pdfjam --quiet --nup %(nup)s %(extras)s -o "%(out)s" "%(in)s"'
 
 
+def update_index(c: Context, framework: str) -> None:
+    output = Path(c.config[f"{framework}:output"])
+    index = output.parent / "index.html"
+    if not index.exists():
+        width, height = c.config["slides"]["size"].split("x")
+        item = ITEM_TEMPLATE % {
+            "file": output.name,
+            "framework": framework,
+        }
+        content = INDEX_TEMPLATE % {
+            "size": f"width={width}, height={height}",
+            "items": item,
+        }
+        index.write_text(content)
+    else:
+        content = index.read_text()
+        item = ITEM_TEMPLATE % {
+            "file": output.name,
+            "framework": framework,
+        }
+        if item not in content:
+            content = content.replace('  </ul>\n', f'{item}\n  </ul>\n')
+            index.write_text(content)
+
+
 def slides(c: Context, src: Path, output: Path, *, framework: str,
            recreate: bool = False) -> None:
     suffixes = "".join(src.suffixes)
     dst_name = src.name.replace(suffixes, f"-{framework}{suffixes}")
     dst = Path(output, dst_name).with_suffix(".html")
+    c.config[f"{framework}:output"] = str(dst)
     if recreate or (not up_to_date(dst, [src])):
         if not dst.parent.exists():
             c.run(MKDIR % {"dir": relative_path(dst.parent)})
@@ -58,7 +85,7 @@ def slides(c: Context, src: Path, output: Path, *, framework: str,
         )
         text = collect_assets(c, out.getvalue(), base=output, wrt=src.parent)
         dst.write_text(text)
-    c.config[f"{framework}:output"] = str(dst)
+        update_index(c, framework)
 
 
 @task
@@ -107,6 +134,6 @@ def decktape(c: Context, src: str, output: str, recreate: bool = False,
             c.run(PDFNUP % {
                 "nup": nup,
                 "extras": " ".join(extras),
-                "out": nup_path,
                 "in": dst_path,
+                "out": nup_path,
             })
