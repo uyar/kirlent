@@ -1,3 +1,8 @@
+0.5 (unreleased)
+----------------
+
+- Add recreate option for bypassing up-to-date checks.
+
 0.4 (2023-02-23)
 ----------------
 

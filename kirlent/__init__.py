@@ -1,4 +1,4 @@
-# Copyright (C) 2022 H. Turgut Uyar <uyar@tekir.org>
+# Copyright (C) 2022-2023 H. Turgut Uyar <uyar@tekir.org>
 #
 # Kırlent is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

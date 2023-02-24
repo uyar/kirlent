@@ -22,7 +22,7 @@ from invoke import Context, task
 from .utils import MKDIR, collect_assets, relative_path, up_to_date
 
 
-BUILDERS: Mapping[str, str] = {
+DOCUTILS_BUILDERS: Mapping[str, str] = {
     "simple": "kirlent2slides",
     "impressjs": "kirlent2impressjs",
     "revealjs": "kirlent2revealjs",
@@ -33,11 +33,12 @@ DECKTAPE = 'decktape reveal --size %(size)s "%(in)s" "%(out)s"'
 PDFNUP = 'pdfjam --quiet --nup %(nup)s %(extras)s -o "%(out)s" "%(in)s"'
 
 
-def slides(c: Context, src: Path, output: Path, *, framework: str) -> None:
+def slides(c: Context, src: Path, output: Path, *, framework: str,
+           recreate: bool = False) -> None:
     suffixes = "".join(src.suffixes)
     dst_name = src.name.replace(suffixes, f"-{framework}{suffixes}")
     dst = Path(output, dst_name).with_suffix(".html")
-    if not up_to_date(dst, [src]):
+    if recreate or (not up_to_date(dst, [src])):
         if not dst.parent.exists():
             c.run(MKDIR % {"dir": relative_path(dst.parent)})
         lang = src.name.split(".")[1]
@@ -49,7 +50,7 @@ def slides(c: Context, src: Path, output: Path, *, framework: str) -> None:
         out = StringIO()
         c.run(
             DOCUTILS % {
-                "builder": BUILDERS[framework],
+                "builder": DOCUTILS_BUILDERS[framework],
                 "options": cli_options,
                 "in": relative_path(src),
             },
@@ -61,29 +62,33 @@ def slides(c: Context, src: Path, output: Path, *, framework: str) -> None:
 
 
 @task
-def simple(c: Context, src: str, output: str) -> None:
-    slides(c, Path(src), Path(output), framework="simple")
+def simple(c: Context, src: str, output: str, recreate: bool = False) -> None:
+    slides(c, Path(src), Path(output), framework="simple", recreate=recreate)
 
 
 @task
-def impressjs(c: Context, src: str, output: str) -> None:
-    slides(c, Path(src), Path(output), framework="impressjs")
+def impressjs(c: Context, src: str, output: str,
+              recreate: bool = False) -> None:
+    slides(c, Path(src), Path(output), framework="impressjs",
+           recreate=recreate)
 
 
 @task
-def revealjs(c: Context, src: str, output: str) -> None:
-    slides(c, Path(src), Path(output), framework="revealjs")
+def revealjs(c: Context, src: str, output: str,
+             recreate: bool = False) -> None:
+    slides(c, Path(src), Path(output), framework="revealjs", recreate=recreate)
 
 
 @task
-def decktape(c: Context, src: str, output: str,
+def decktape(c: Context, src: str, output: str, recreate: bool = False,
              nup: Union[str, None] = None) -> None:
     src_path, output_path = Path(src), Path(output)
-    slides(c, src=src_path, output=output_path, framework="revealjs")
+    slides(c, src=src_path, output=output_path, framework="revealjs",
+           recreate=recreate)
     slides_path = Path(c.config["revealjs:output"])
     dst_name = slides_path.name.replace("revealjs", "decktape")
     dst_path = Path(output, dst_name).with_suffix(".pdf")
-    if not up_to_date(dst_path, [slides_path]):
+    if recreate or (not up_to_date(dst_path, [slides_path])):
         if not dst_path.parent.exists():
             c.run(MKDIR % {"dir": relative_path(dst_path.parent)})
         c.run(DECKTAPE % {
