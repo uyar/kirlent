@@ -30,8 +30,8 @@ DOCUTILS_BUILDERS: Mapping[str, str] = {
 }
 
 DOCUTILS = '%(builder)s %(options)s "%(in)s"'
-DECKTAPE = 'decktape automatic --size=%(size)s "%(in)s" "%(out)s"'
-PDFNUP = 'pdfjam --quiet --nup=%(nup)s %(extras)s -o "%(out)s" "%(in)s"'
+DECKTAPE = 'decktape automatic --size %(size)s "%(in)s" "%(out)s"'
+PDFNUP = 'pdfjam --quiet --nup %(nup)s %(extras)s -o "%(out)s" "%(in)s"'
 
 
 def update_index(c: Context, framework: str) -> None:
