@@ -30,7 +30,7 @@ DOCUTILS_BUILDERS: Mapping[str, str] = {
 }
 
 DOCUTILS = '%(builder)s %(options)s "%(in)s"'
-DECKTAPE = 'decktape reveal --size %(size)s "%(in)s" "%(out)s"'
+DECKTAPE = 'decktape automatic --size %(size)s "%(in)s" "%(out)s"'
 PDFNUP = 'pdfjam --quiet --nup %(nup)s %(extras)s -o "%(out)s" "%(in)s"'
 
 
@@ -108,13 +108,12 @@ def revealjs(c: Context, src: str, output: str,
 
 @task
 def decktape(c: Context, src: str, output: str, recreate: bool = False,
-             nup: Union[str, None] = None) -> None:
+             framework: str = "revealjs", nup: Union[str, None] = None) -> None:
     src_path, output_path = Path(src), Path(output)
-    slides(c, src=src_path, output=output_path, framework="revealjs",
+    slides(c, src=src_path, output=output_path, framework=framework,
            recreate=recreate)
-    slides_path = Path(c.config["revealjs:output"])
-    dst_name = slides_path.name.replace("revealjs", "decktape")
-    dst_path = Path(output, dst_name).with_suffix(".pdf")
+    slides_path = Path(c.config[f"{framework}:output"])
+    dst_path = Path(output, slides_path.name).with_suffix(".pdf")
     if recreate or (not up_to_date(dst_path, [slides_path])):
         if not dst_path.parent.exists():
             c.run(MKDIR % {"dir": relative_path(dst_path.parent)})

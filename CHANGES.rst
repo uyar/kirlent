@@ -3,6 +3,7 @@
 
 - Generate and update an index page for outputs.
 - Add recreate option for bypassing up-to-date checks.
+- Generate PDF from other HTML slides outputs as well.
 - Don't install dependencies on project setup.
 - Don't overwrite existing config files on project setup.
 
