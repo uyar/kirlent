@@ -1,6 +1,6 @@
 [project]
 name = "kirlent"
-version = "0.4"
+version = "0.5"
 description = "Educational material builder."
 readme = "README.rst"
 

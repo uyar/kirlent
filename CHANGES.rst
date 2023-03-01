@@ -1,4 +1,4 @@
-0.5 (unreleased)
+0.5 (2023-03-01)
 ----------------
 
 - Generate and update an index page for outputs.

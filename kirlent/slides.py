@@ -30,8 +30,8 @@ DOCUTILS_BUILDERS: Mapping[str, str] = {
 }
 
 DOCUTILS = '%(builder)s %(options)s "%(in)s"'
-DECKTAPE = 'decktape automatic --size %(size)s "%(in)s" "%(out)s"'
-PDFNUP = 'pdfjam --quiet --nup %(nup)s %(extras)s -o "%(out)s" "%(in)s"'
+DECKTAPE = 'decktape automatic --size=%(size)s "%(in)s" "%(out)s"'
+PDFNUP = 'pdfjam --quiet --nup=%(nup)s %(extras)s -o "%(out)s" "%(in)s"'
 
 
 def update_index(c: Context, framework: str) -> None:
@@ -108,7 +108,8 @@ def revealjs(c: Context, src: str, output: str,
 
 @task
 def decktape(c: Context, src: str, output: str, recreate: bool = False,
-             framework: str = "revealjs", nup: Union[str, None] = None) -> None:
+             framework: str = "revealjs",
+             nup: Union[str, None] = None) -> None:
     src_path, output_path = Path(src), Path(output)
     slides(c, src=src_path, output=output_path, framework=framework,
            recreate=recreate)

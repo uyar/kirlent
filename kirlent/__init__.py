@@ -13,6 +13,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Kırlent.  If not, see <http://www.gnu.org/licenses/>.
 
+__version__ = "0.5"
+
+
 import json
 from pathlib import Path
 
@@ -20,8 +23,6 @@ from invoke import Collection, Program
 
 from . import tasks
 
-
-__version__ = "0.4"
 
 config = Path("kirlent.json")
 if not config.exists():
