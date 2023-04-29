@@ -50,6 +50,13 @@ kirlent = "kirlent:program.run"
 homepage = "https://tekir.org/kirlent/"
 repository = "https://github.com/uyar/kirlent"
 
+[tool.coverage.run]
+source_pkgs = ["kirlent"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
 [tool.mypy]
 ignore_missing_imports = true
 
@@ -68,11 +75,11 @@ isolated_build = True
 [testenv]
 extras = tests
 commands =
-    pytest {posargs:tests}
+    pytest tests
 
 [testenv:coverage]
 commands =
-    pytest --cov={envsitepackagesdir}/kirlent --cov-report=term-missing tests
+    pytest tests --cov
 
 [testenv:types]
 extras = lint
