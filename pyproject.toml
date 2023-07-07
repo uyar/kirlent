@@ -23,24 +23,17 @@ classifiers = [
 ]
 
 requires-python = "~=3.8"
-dependencies = [
-    "invoke>=2.0",
-]
+dependencies = ["invoke>=2.0"]
 
 [project.optional-dependencies]
-tests = [
-    "pytest",
-    "pytest-cov",
-]
-lint = [
-    "flake8",
-    "flake8-isort",
-    "mypy",
-]
+tests = ["pytest", "pytest-cov"]
+types = ["mypy"]
+style = ["flake8", "flake8-isort"]
 dev = [
-    "kirlent[tests,lint]",
-    "tox",
+    "kirlent[tests,types,style]",
     "build",
+    "twine",
+    "tox",
 ]
 
 [project.scripts]
@@ -49,6 +42,15 @@ kirlent = "kirlent:program.run"
 [project.urls]
 homepage = "https://tekir.org/kirlent/"
 repository = "https://github.com/uyar/kirlent"
+
+[tool.setuptools]
+packages = ["kirlent"]
+
+[tool.setuptools.package-data]
+kirlent = ["kirlent.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [tool.coverage.run]
 source_pkgs = ["kirlent"]
@@ -69,29 +71,46 @@ sections = "TEST,STDLIB,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py{38,39,310,311}, types, style
+envlist = py3{8,9,10,11}, types, style
 isolated_build = True
 
 [testenv]
 extras = tests
+package = wheel
+wheel_build_env = .pkg
 commands =
-    pytest tests
+    pytest
 
 [testenv:coverage]
 commands =
-    pytest tests --cov
+    pytest --cov
 
 [testenv:types]
-extras = lint
+skip_install = true
+deps =
+    mypy
 commands =
     mypy kirlent
 
 [testenv:style]
-extras = lint
+skip_install = true
+deps =
+    flake8
+    flake8-isort
 commands =
     flake8 kirlent
+
+[testenv:package]
+skip_install = true
+deps =
+    build
+    twine
+commands =
+    python -c "import shutil; shutil.rmtree('dist', ignore_errors=True)"
+    python -m build
+    twine check dist/*
 """
 
 [build-system]
-requires = ["flit_core>=3.2"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
