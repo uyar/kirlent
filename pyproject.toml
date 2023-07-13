@@ -82,7 +82,7 @@ section-order = [
 ]
 
 [tool.ruff.isort.sections]
-"test" = ["pytest", "unittest"]
+test = ["pytest", "unittest"]
 
 [tool.tox]
 legacy_tox_ini = """
@@ -113,7 +113,7 @@ skip_install = true
 deps =
     ruff
 commands =
-    ruff kirlent
+    ruff kirlent tests
 
 [testenv:flake8]
 skip_install = true
@@ -121,8 +121,7 @@ deps =
     flake8
     flake8-isort
 commands =
-    flake8 kirlent
-    flake8 tests
+    flake8 kirlent tests
 
 [testenv:package]
 skip_install = true
