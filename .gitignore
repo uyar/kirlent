@@ -15,6 +15,7 @@ build
 dist
 prof
 coverage.xml
+docs/_build
 
 package.json
 package-lock.json
